@@ -9,6 +9,7 @@ import SpotifyAuth from '../components/SpotifyAuth';
 import ListPlaylist from '../components/ListPlaylist';
 import Filter from '../components/Filter';
 
+const CHECK_API_TIME = 30000;
 const DEBOUNCE_TIME = 500;
 
 class App extends Component {
@@ -25,28 +26,45 @@ class App extends Component {
     this.spotify = new SpotifyService();
   }
 
-  componentDidMount() {
-    getFilterService()
-      .then(({ filters }) => this.setState({ filters }));
+  checkFiltersChanged() {
+    this.filtersAPIInterval = window.setInterval(() => {
+      this.getFilters();
+    }, CHECK_API_TIME);
+  }
+  
+  checkFeaturedPlaylistsChanged() {
+    this.featuredPlaylistAPIInterval = window.setInterval(() => {
+      this.getFeaturedPlaylists();
+    }, CHECK_API_TIME);
   }
 
-  handleAuthenticated = _.debounce(() => {
+  handleAuthenticated = () => {
     this.setState({
       isAuthorized: true
     })
 
+    this.getFilters();
     this.getFeaturedPlaylists();
-  }, DEBOUNCE_TIME)
 
-  handleChangedFilter = ({ target }) => {
-    const id = target.id;
-    const value = target.value;
+    this.checkFiltersChanged();
+    this.checkFeaturedPlaylistsChanged();
+  }
 
+  changedFilter = _.debounce(({ id, value }) => {
     let filtersValues = Object.assign({}, this.state.filtersValues);
     filtersValues[id] = value;
 
     this.setState({ filtersValues });
     this.getFeaturedPlaylists();
+  }, DEBOUNCE_TIME)
+
+  handleChangedFilter = (e) => {
+    this.changedFilter(e.target);
+  }
+
+  getFilters = () => {
+    getFilterService()
+      .then(({ filters }) => this.setState({ filters }));
   }
 
   getFeaturedPlaylists = () => {

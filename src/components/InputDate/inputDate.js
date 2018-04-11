@@ -1,34 +1,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const InputNumber = ({ name, id, min, max, value, onChanged }) => (
+const InputDate = ({ name, id, pattern, value, onChanged }) => (
   <div className="input-container">
     <label
-      className="input-container__label"
-      htmlFor={id}>
+      htmlFor={id}
+      className="input-container__label">
       {name}
     </label>
     <input
       id={id}
-      type="number"
       className="input-container__input"
-      min={min}
-      max={max}
+      type="datetime-local"
       tabIndex="0"
+      step="1"
+      pattern={pattern}
       value={value}
       onChange={onChanged}/>
   </div>
 );
 
-const { string, number, func } = PropTypes;
+const { string, func } = PropTypes;
 
-InputNumber.propTypes = {
+InputDate.propTypes = {
   name: string.isRequired,
   id: string.isRequired,
-  min: number,
-  max: number,
+  pattern: string.isRequired,
   value: string,
   onChanged: func.isRequired
 };
 
-export default InputNumber;
+export default InputDate;

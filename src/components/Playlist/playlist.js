@@ -18,10 +18,12 @@ const Playlist = ({ name, images, external_urls }) => (
   </li>
 );
 
-const { string } = PropTypes;
+const { string, array, object } = PropTypes;
 
 Playlist.propTypes = {
-  name: string.isRequired
+  name: string.isRequired,
+  images: array,
+  external_urls: object
 };
 
 export default Playlist;

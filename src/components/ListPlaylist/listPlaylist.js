@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import Playlist from '../Playlist';
 
 const ListPlaylist = ({ items }) => (
@@ -8,5 +10,11 @@ const ListPlaylist = ({ items }) => (
     </ul>
   </div>
 );
+
+const { array } = PropTypes;
+
+ListPlaylist.propTypes = {
+  items: array
+}
 
 export default ListPlaylist;

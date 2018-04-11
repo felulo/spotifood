@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const Select = ({ name, id, values, value, onChanged }) => (
   <div className="input-container">
@@ -17,5 +18,15 @@ const Select = ({ name, id, values, value, onChanged }) => (
     </select>
   </div>
 );
+
+const { string, array, func } = PropTypes;
+
+Select.propTypes = {
+  name: string.isRequired,
+  id: string.isRequired,
+  values: array,
+  value: string,
+  onChanged: func.isRequired
+};
 
 export default Select;

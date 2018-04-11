@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropType from 'prop-types';
 
 class SpotifyAuth extends Component {
   authenticate = () => {
@@ -24,6 +25,13 @@ class SpotifyAuth extends Component {
       </div>
     );
   }
+}
+
+const { object, func } = PropType;
+
+SpotifyAuth.propType = {
+  wrapper: object,
+  onAuthenticated: func
 }
 
 export default SpotifyAuth;

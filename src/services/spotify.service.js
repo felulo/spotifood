@@ -71,7 +71,9 @@ class SpotifyService {
       window.clearInterval(this.oAuthInterval);
       this.oAuthPopup.close();
 
-      return this.oAuthPopup.location.hash.substr(1);
+      return this.oAuthPopup.location.search ? 
+        this.oAuthPopup.location.search.substr(1) :
+        this.oAuthPopup.location.hash.substr(1);
     }
 
     return '';
@@ -104,7 +106,9 @@ class SpotifyService {
 
         this.oAuthInterval = window.setInterval(() => {
           if (this.checkPopupHasOpened()) {
-            reject();
+            reject({
+              error: 'closed_popup'
+            });
           }
 
           const paramsURL = this.getURLPopupOAuth();
@@ -118,12 +122,12 @@ class SpotifyService {
 
               resolve();
             } else {
-              reject();
+              reject(paramsObj);
             }
           }
         }, OAUTH_INTERVAL);
       } else {
-        this.oAuth ? resolve() : reject();
+        resolve();
       }
     });
   }

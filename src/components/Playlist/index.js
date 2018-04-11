@@ -1,14 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-
-const Playlist = ({ name }) => (
-  <li>{ name }</li>
-);
-
-const { string } = PropTypes;
-
-Playlist.propTypes = {
-  name: string.isRequired
-};
+import Playlist from './playlist';
+import './playlist.css'
 
 export default Playlist;

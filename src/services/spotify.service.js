@@ -13,6 +13,25 @@ class SpotifyService {
   constructor() {
     this.isClientAuthorized = false;
     this.expireTime = 0;
+    this.oAuth = {};
+  }
+
+  parseFilters(filtersObj) {
+    let filtersText = '';
+
+    if (filtersObj) {
+      const keys = Object.keys(filtersObj);
+
+      filtersText = keys.reduce((prev, curr, index) => {
+        if (filtersObj[curr]) {
+          return `${prev}${index > 0 ? '&': ''}${curr}=${filtersObj[curr]}`;
+        }
+
+        return prev;
+      }, '?');
+    }
+
+    return filtersText;
   }
 
   getParamsAuth(url) {
@@ -110,11 +129,12 @@ class SpotifyService {
   }
 
   isAuthorized() {
-    return this.isClientAuthorized && (Date.now() < this.oauth.expires_in);
+    return this.isClientAuthorized && (Date.now() < this.oAuth.expires_in);
   }
 
   getListFeaturedPlaylist(filters) {
-    const url = `${SPOTIFY_BASE_URI_API}/browse/featured-playlists`;
+    const filtersText = this.parseFilters(filters);
+    const url = `${SPOTIFY_BASE_URI_API}/browse/featured-playlists${filtersText}`;
 
     return window.fetch(url, {
       method: 'GET',

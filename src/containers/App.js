@@ -1,20 +1,28 @@
 import React, { Component } from 'react';
 
-import PlaylistsMock from '../services/playlists.mock';
-import SpotifyWrapper from '../services/spotify.wrapper';
+import SpotifyService from '../services/spotify.service';
 
-import ListPlaylist from '../components/ListPlaylist';
+import getFilterService from '../services/filter.service';
+
 import SpotifyAuth from '../components/SpotifyAuth';
+import ListPlaylist from '../components/ListPlaylist';
+import ListFilter from '../components/ListFilter';
 
 class App extends Component {
   constructor(props){
     super(props);
 
     this.state = {
+      filters: [],
       playlists: []
     }
 
-    this.spotify = new SpotifyWrapper();
+    this.spotify = new SpotifyService();
+  }
+
+  componentDidMount() {
+    getFilterService()
+      .then(({ filters }) => this.setState({ filters }));
   }
 
   handleAuthenticated = () => {
@@ -30,6 +38,7 @@ class App extends Component {
         <SpotifyAuth
           wrapper={this.spotify}
           onAuthenticated={this.handleAuthenticated}/>
+        <ListFilter items={this.state.filters}/>
         <ListPlaylist items={this.state.playlists}/>
       </div>
     );

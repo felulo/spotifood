@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 
 class SpotifyAuth extends Component {
-  constructor(props){
-    super(props);
-  }
-
   authenticate = () => {
     const { wrapper, onAuthenticated } = this.props;
 
@@ -15,7 +11,7 @@ class SpotifyAuth extends Component {
       });
   }
 
-  render(){
+  render() {
     return (
       <div className="spotifyAuth">
         <button onClick={this.authenticate}>

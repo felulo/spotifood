@@ -9,14 +9,14 @@ const HEIGHT_POPUP = 550;
 
 const OAUTH_INTERVAL = 500;
 
-class SpotifyWrapper {
+class SpotifyService {
   constructor() {
     this.isClientAuthorized = false;
     this.expireTime = 0;
   }
 
   getParamsAuth(url) {
-    let params = url.split('&');
+    const params = url.split('&');
 
     if (params) {
       return params.reduce((prev, next) => {
@@ -31,14 +31,41 @@ class SpotifyWrapper {
     return;
   }
 
+  checkPopupHasOpened() {
+    const isClosed = this.oAuthPopup.closed;
+
+    if (isClosed) {
+      window.clearInterval(this.oAuthInterval);
+    }
+
+    return isClosed;
+  }
+
+  getURLPopupOAuth() {
+    let changeURLPopup = false;
+
+    try {
+      changeURLPopup = this.oAuthPopup.location.href.indexOf(SPOTIFY_REDIRECT_URI) > -1;
+    } catch (exception) {}
+
+    if (changeURLPopup) {
+      window.clearInterval(this.oAuthInterval);
+      this.oAuthPopup.close();
+
+      return this.oAuthPopup.location.hash.substr(1);
+    }
+
+    return '';
+  }
+
   authorize() {
     return new Promise((resolve, reject) => {
-      let spotifyAuthorizeURI = `${SPOTIFY_BASE_URI_AUTHORIZE}?client_id=${SPOTIFY_CLIENT_ID}&response_type=${SPOTIFY_RESPONSE_TYPE}&redirect_uri=${SPOTIFY_REDIRECT_URI}`;
-      let windowName = 'Spotify Authorize';
-      let leftPopup = (window.screen.width / 2) - (WIDTH_POPUP / 2);
-      let topPopup = (window.screen.height / 2) - (HEIGHT_POPUP / 2);
+      const spotifyAuthorizeURI = `${SPOTIFY_BASE_URI_AUTHORIZE}?client_id=${SPOTIFY_CLIENT_ID}&response_type=${SPOTIFY_RESPONSE_TYPE}&redirect_uri=${SPOTIFY_REDIRECT_URI}`;
+      const windowName = 'Spotify Authorize';
+      const leftPopup = (window.screen.width / 2) - (WIDTH_POPUP / 2);
+      const topPopup = (window.screen.height / 2) - (HEIGHT_POPUP / 2);
 
-      let windowOptions = `
+      const windowOptions = `
         toolbar=no,
         location=no,
         directories=no,
@@ -57,30 +84,24 @@ class SpotifyWrapper {
         this.oAuthPopup = window.open(spotifyAuthorizeURI, windowName, windowOptions);
 
         this.oAuthInterval = window.setInterval(() => {
-          try {
-            if (this.oAuthPopup.closed) {
-              window.clearInterval(this.oAuthInterval);
+          if (this.checkPopupHasOpened()) {
+            reject();
+          }
 
+          const paramsURL = this.getURLPopupOAuth();
+
+          if (paramsURL !== '') {
+            const paramsObj = this.getParamsAuth(paramsURL);
+
+            if (paramsObj['access_token']) {
+              this.oAuth = paramsObj;
+              this.isClientAuthorized = true;
+
+              resolve();
+            } else {
               reject();
             }
-
-            if (this.oAuthPopup.location.href.indexOf(SPOTIFY_REDIRECT_URI) > -1) {
-              window.clearInterval(this.oAuthInterval);
-
-              let result = this.getParamsAuth(this.oAuthPopup.location.hash.substr(1));
-              
-              this.oAuthPopup.close();
-
-              if (result['access_token']) {
-                this.oAuth = result;
-                this.isClientAuthorized = true;
-
-                resolve();
-              } else {
-                reject();
-              }
-            }
-          } catch (exception) {}
+          }
         }, OAUTH_INTERVAL);
       } else {
         this.oAuth ? resolve() : reject();
@@ -93,7 +114,7 @@ class SpotifyWrapper {
   }
 
   getListFeaturedPlaylist(filters) {
-    let url = `${SPOTIFY_BASE_URI_API}/browse/featured-playlists`;
+    const url = `${SPOTIFY_BASE_URI_API}/browse/featured-playlists`;
 
     return window.fetch(url, {
       method: 'GET',
@@ -106,4 +127,4 @@ class SpotifyWrapper {
   }
 }
 
-export default SpotifyWrapper;
+export default SpotifyService;
